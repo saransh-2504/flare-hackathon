@@ -53,38 +53,29 @@ body {
    ============================================ */
 
 .cursor-dot {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
     background: var(--primary);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 10000;
-    transition: transform 0.15s ease, opacity 0.15s ease;
-    box-shadow: 0 0 20px var(--primary);
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease;
+    box-shadow: 0 0 15px var(--primary), 0 0 5px var(--primary);
 }
 
 .cursor-outline {
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
     border: 2px solid var(--primary);
     border-radius: 50%;
     position: fixed;
     pointer-events: none;
     z-index: 9999;
-    transition: all 0.2s ease;
-    opacity: 0.5;
-}
-
-body:hover .cursor-dot {
-    transform: scale(1.5);
-}
-
-button:hover ~ .cursor-dot,
-a:hover ~ .cursor-dot,
-.premium-card:hover ~ .cursor-dot {
-    transform: scale(2);
-    background: var(--secondary);
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-width 0.2s ease, border-color 0.2s ease;
+    opacity: 0.6;
 }
 
 /* ============================================
@@ -1472,6 +1463,115 @@ a:hover ~ .cursor-dot,
 #apiDocsFrame {
     border-radius: 12px;
     background: var(--bg-tertiary);
+}
+
+/* ============================================
+   FULL-PAGE DOCS OVERLAY
+   ============================================ */
+
+.docs-fullpage-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-primary);
+    z-index: 9998;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.docs-fullpage-overlay.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.docs-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    background: var(--bg-card);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-color);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    animation: slideDown 0.6s ease;
+}
+
+.btn-back {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition-smooth);
+}
+
+.btn-back:hover {
+    border-color: var(--primary);
+    background: var(--bg-secondary);
+    transform: translateX(-5px);
+}
+
+.btn-back svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+.docs-title {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.docs-icon {
+    font-size: 32px;
+    animation: float 3s infinite ease-in-out;
+}
+
+.docs-title h2 {
+    font-size: 24px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.docs-content-wrapper {
+    height: calc(100vh - 80px);
+    overflow: hidden;
+    position: relative;
+}
+
+#apiDocsFrameFull {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: var(--bg-primary);
+}
+
+#docsLoadingFull {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
 }
 
 /* ============================================

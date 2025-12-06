@@ -34,33 +34,60 @@ function initCursor() {
     cursorDot = document.getElementById('cursorDot');
     cursorOutline = document.getElementById('cursorOutline');
     
+    let cursorX = 0;
+    let cursorY = 0;
+    let outlineX = 0;
+    let outlineY = 0;
+    
     document.addEventListener('mousemove', (e) => {
         mouseX = e.clientX;
         mouseY = e.clientY;
-        
-        cursorDot.style.left = mouseX + 'px';
-        cursorDot.style.top = mouseY + 'px';
-        
-        setTimeout(() => {
-            cursorOutline.style.left = mouseX + 'px';
-            cursorOutline.style.top = mouseY + 'px';
-        }, 100);
+        cursorX = e.clientX;
+        cursorY = e.clientY;
     });
+    
+    // Smooth cursor animation with RAF
+    function animateCursor() {
+        // Dot follows cursor instantly
+        cursorDot.style.left = cursorX + 'px';
+        cursorDot.style.top = cursorY + 'px';
+        
+        // Outline follows with smooth easing
+        outlineX += (cursorX - outlineX) * 0.15;
+        outlineY += (cursorY - outlineY) * 0.15;
+        
+        cursorOutline.style.left = outlineX + 'px';
+        cursorOutline.style.top = outlineY + 'px';
+        
+        requestAnimationFrame(animateCursor);
+    }
+    
+    animateCursor();
     
     // Cursor effects on interactive elements
-    const interactiveElements = document.querySelectorAll('button, a, .premium-card, input, select');
-    
-    interactiveElements.forEach(el => {
-        el.addEventListener('mouseenter', () => {
-            cursorDot.style.transform = 'scale(2)';
-            cursorOutline.style.transform = 'scale(1.5)';
-        });
+    const updateInteractiveElements = () => {
+        const interactiveElements = document.querySelectorAll('button, a, .premium-card, input, select, .endpoint-item, .strategy-item');
         
-        el.addEventListener('mouseleave', () => {
-            cursorDot.style.transform = 'scale(1)';
-            cursorOutline.style.transform = 'scale(1)';
+        interactiveElements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1.5)';
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1.3)';
+                cursorOutline.style.borderWidth = '3px';
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                cursorDot.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorOutline.style.transform = 'translate(-50%, -50%) scale(1)';
+                cursorOutline.style.borderWidth = '2px';
+            });
         });
-    });
+    };
+    
+    updateInteractiveElements();
+    
+    // Update interactive elements when DOM changes
+    const observer = new MutationObserver(updateInteractiveElements);
+    observer.observe(document.body, { childList: true, subtree: true });
 }
 
 // ============================================
@@ -563,35 +590,62 @@ function copyApiKey() {
 }
 
 function toggleApiDocs() {
-    const mainContent = document.getElementById('apiMainContent');
-    const docsContent = document.getElementById('apiDocsContent');
-    const docsToggleText = document.getElementById('docsToggleText');
-    const docsLoading = document.getElementById('docsLoading');
-    const docsFrame = document.getElementById('apiDocsFrame');
+    const mainContainer = document.querySelector('.main-container');
+    const docsOverlay = document.getElementById('docsFullPageOverlay');
     
-    if (docsContent.style.display === 'none') {
-        // Show docs
-        mainContent.style.display = 'none';
-        docsContent.style.display = 'block';
-        docsToggleText.textContent = '← Back';
+    if (!docsOverlay) {
+        // Create full-page docs overlay
+        const overlay = document.createElement('div');
+        overlay.id = 'docsFullPageOverlay';
+        overlay.className = 'docs-fullpage-overlay';
+        overlay.innerHTML = `
+            <div class="docs-header">
+                <button class="btn-back" onclick="toggleApiDocs()">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M19 12H5M12 19l-7-7 7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Back to Dashboard</span>
+                </button>
+                <div class="docs-title">
+                    <span class="docs-icon">📚</span>
+                    <h2>API Documentation</h2>
+                </div>
+            </div>
+            <div class="docs-content-wrapper">
+                <div class="docs-loading" id="docsLoadingFull">
+                    <div class="loading-spinner"></div>
+                    <p>Loading documentation...</p>
+                </div>
+                <iframe id="apiDocsFrameFull" style="display: none;"></iframe>
+            </div>
+        `;
         
-        // Load docs with animation
-        docsLoading.style.display = 'flex';
-        docsFrame.style.display = 'none';
+        document.body.appendChild(overlay);
+        
+        // Load docs
+        setTimeout(() => {
+            const frame = document.getElementById('apiDocsFrameFull');
+            const loading = document.getElementById('docsLoadingFull');
+            
+            frame.src = 'api-docs.html';
+            frame.onload = () => {
+                loading.style.display = 'none';
+                frame.style.display = 'block';
+                frame.style.animation = 'fadeIn 0.5s ease';
+            };
+        }, 300);
+        
+        // Show overlay with animation
+        setTimeout(() => overlay.classList.add('active'), 10);
+        document.body.style.overflow = 'hidden';
+    } else {
+        // Hide overlay
+        docsOverlay.classList.remove('active');
+        document.body.style.overflow = '';
         
         setTimeout(() => {
-            docsFrame.src = 'api-docs.html';
-            docsFrame.onload = () => {
-                docsLoading.style.display = 'none';
-                docsFrame.style.display = 'block';
-                docsFrame.style.animation = 'fadeIn 0.5s ease';
-            };
-        }, 500);
-    } else {
-        // Hide docs
-        mainContent.style.display = 'block';
-        docsContent.style.display = 'none';
-        docsToggleText.textContent = 'Docs →';
+            docsOverlay.remove();
+        }, 400);
     }
 }
 

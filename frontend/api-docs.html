@@ -36,38 +36,68 @@
         }
 
         .api-key-section {
-            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
-            border: 2px solid rgba(139, 92, 246, 0.3);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(0, 217, 255, 0.1));
+            border: 2px solid rgba(255, 107, 53, 0.3);
             border-radius: 20px;
             padding: 40px;
             margin-bottom: 50px;
+            animation: fadeInUp 0.6s ease;
         }
 
-        .api-key-form {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
-            margin-bottom: 20px;
+        .auth-info-box {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .api-key-display {
-            display: none;
-            padding: 20px;
+        .auth-step {
+            display: flex;
+            align-items: start;
+            gap: 20px;
+            padding: 25px;
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            margin-top: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            transition: all 0.3s ease;
         }
 
-        .api-key-display.show {
-            display: block;
+        .auth-step:hover {
+            border-color: var(--primary);
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(255, 107, 53, 0.2);
         }
 
-        .api-key-value {
-            font-family: 'Fira Code', monospace;
+        .step-num {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .auth-step h4 {
+            margin-bottom: 8px;
             font-size: 1.1em;
-            color: var(--success);
-            word-break: break-all;
-            margin: 10px 0;
+            color: var(--text);
+        }
+
+        .auth-step p {
+            color: var(--text-muted);
+            font-size: 0.95em;
+            line-height: 1.5;
+        }
+
+        .auth-step code {
+            background: rgba(255, 107, 53, 0.2);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            color: var(--primary);
         }
 
         .endpoint-section {
@@ -202,9 +232,59 @@
             margin-bottom: 10px;
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .endpoint-card {
+            animation: fadeInUp 0.6s ease both;
+        }
+
+        .endpoint-card:nth-child(1) { animation-delay: 0.1s; }
+        .endpoint-card:nth-child(2) { animation-delay: 0.2s; }
+        .endpoint-card:nth-child(3) { animation-delay: 0.3s; }
+        .endpoint-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .code-block {
+            transition: all 0.3s ease;
+        }
+
+        .code-block:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
         @media (max-width: 768px) {
-            .api-key-form {
-                grid-template-columns: 1fr;
+            .auth-info-box {
+                gap: 15px;
+            }
+            
+            .auth-step {
+                padding: 20px;
+            }
+            
+            .step-num {
+                width: 35px;
+                height: 35px;
+                font-size: 1em;
             }
         }
     </style>
@@ -223,35 +303,39 @@
             <h1>🚀 Flare Autopilot API</h1>
             <p>Integrate secure automation and security monitoring into your application with our powerful RESTful API</p>
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 30px;">
-                <a href="index.html" class="btn btn-secondary">← Back to App</a>
                 <button class="btn btn-primary" onclick="scrollToGetStarted()">Get Started →</button>
             </div>
         </div>
 
-        <!-- Get API Key -->
+        <!-- Authentication Info -->
         <div class="glass-card api-key-section" id="getStarted">
-            <h2 class="panel-title">🔑 Get Your API Key</h2>
+            <h2 class="panel-title">🔑 Authentication</h2>
             <p style="color: var(--text-muted); margin-bottom: 25px;">
-                Register to get your free API key and start building with Flare Autopilot
+                All API requests require authentication using your API key. Generate your key from the main dashboard.
             </p>
             
-            <div class="api-key-form">
-                <input type="email" id="apiEmail" placeholder="your@email.com" required>
-                <input type="text" id="apiWallet" placeholder="0x... (Your Flare wallet)" required>
-                <button class="btn btn-primary" onclick="generateApiKey()">
-                    <span>✨</span> Generate API Key
-                </button>
-            </div>
-
-            <div class="api-key-display" id="apiKeyDisplay">
-                <h3 style="margin-bottom: 15px;">✅ Your API Key:</h3>
-                <div class="api-key-value" id="apiKeyValue"></div>
-                <p style="color: var(--warning); margin-top: 15px;">
-                    ⚠️ Save this key securely! You won't be able to see it again.
-                </p>
-                <button class="btn btn-success" onclick="copyApiKey()" style="margin-top: 15px;">
-                    📋 Copy API Key
-                </button>
+            <div class="auth-info-box">
+                <div class="auth-step">
+                    <span class="step-num">1</span>
+                    <div>
+                        <h4>Generate API Key</h4>
+                        <p>Go back to the dashboard and use the API Integration card to generate your key</p>
+                    </div>
+                </div>
+                <div class="auth-step">
+                    <span class="step-num">2</span>
+                    <div>
+                        <h4>Include in Headers</h4>
+                        <p>Add your API key to the <code>X-API-Key</code> header in all requests</p>
+                    </div>
+                </div>
+                <div class="auth-step">
+                    <span class="step-num">3</span>
+                    <div>
+                        <h4>Start Building</h4>
+                        <p>Use the endpoints below to integrate Flare Autopilot into your application</p>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -491,37 +575,8 @@
     </div>
 
     <script>
-        let generatedApiKey = null;
-
         function scrollToGetStarted() {
             document.getElementById('getStarted').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function generateApiKey() {
-            const email = document.getElementById('apiEmail').value;
-            const wallet = document.getElementById('apiWallet').value;
-
-            if (!email || !wallet) {
-                alert('Please fill in all fields');
-                return;
-            }
-
-            // Generate mock API key
-            generatedApiKey = 'flr_' + Array.from({length: 64}, () => 
-                Math.floor(Math.random() * 16).toString(16)).join('');
-
-            document.getElementById('apiKeyValue').textContent = generatedApiKey;
-            document.getElementById('apiKeyDisplay').classList.add('show');
-
-            // Show success notification
-            showNotification('✅ API Key generated successfully!', 'success');
-        }
-
-        function copyApiKey() {
-            if (generatedApiKey) {
-                navigator.clipboard.writeText(generatedApiKey);
-                showNotification('📋 API Key copied to clipboard!', 'success');
-            }
         }
 
         function copyCode(btn) {
@@ -531,31 +586,38 @@
             setTimeout(() => btn.textContent = 'Copy', 2000);
         }
 
-        function showNotification(message, type) {
-            const colors = {
-                success: 'linear-gradient(135deg, #10b981, #059669)',
-                error: 'linear-gradient(135deg, #ef4444, #dc2626)'
-            };
-            
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${colors[type]};
-                color: white;
-                padding: 20px 30px;
-                border-radius: 15px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                font-weight: 600;
-                animation: slideIn 0.3s ease-out;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => notification.remove(), 3000);
-        }
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Add fade-in animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.glass-card, .endpoint-card').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(20px)';
+            el.style.transition = 'all 0.6s ease';
+            observer.observe(el);
+        });
     </script>
 </body>
 </html>
