@@ -16,8 +16,9 @@ let passed = 0;
 console.log('✓ Checking vercel.json...');
 try {
     const vercelConfig = JSON.parse(fs.readFileSync('vercel.json', 'utf8'));
-    if (!vercelConfig.builds || !vercelConfig.routes) {
-        errors.push('vercel.json missing builds or routes');
+    // Accept both old format (builds/routes) and new format (rewrites/functions)
+    if ((!vercelConfig.builds && !vercelConfig.rewrites) || (!vercelConfig.routes && !vercelConfig.rewrites)) {
+        errors.push('vercel.json missing builds/routes or rewrites');
     } else {
         passed++;
         console.log('  ✅ vercel.json is valid');
