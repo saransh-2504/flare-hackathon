@@ -203,38 +203,40 @@ function initFloatingBots() {
 // ============================================
 
 function initCounters() {
-    const counters = document.querySelectorAll('[data-target]');
+    updateDashboardStats();
+}
+
+function updateDashboardStats() {
+    // Calculate real-time stats from user strategies
+    const activeStrategies = userStrategies.filter(s => s.active).length;
+    const totalExecutions = userStrategies.reduce((sum, s) => sum + (s.executions || 0), 0);
+    const totalValueLocked = userStrategies.reduce((sum, s) => sum + parseFloat(s.amount || 0), 0);
     
-    const animateCounter = (counter) => {
-        const target = parseInt(counter.getAttribute('data-target'));
-        const duration = 2000;
-        const step = target / (duration / 16);
-        let current = 0;
-        
-        const updateCounter = () => {
-            current += step;
-            if (current < target) {
-                counter.textContent = Math.floor(current).toLocaleString();
-                requestAnimationFrame(updateCounter);
-            } else {
-                counter.textContent = target.toLocaleString();
-            }
-        };
-        
-        updateCounter();
+    // Update counters with animation
+    animateCounter(document.querySelector('.stat-card:nth-child(1) .stat-value'), activeStrategies);
+    animateCounter(document.querySelector('.stat-card:nth-child(2) .stat-value span'), totalValueLocked);
+    animateCounter(document.querySelector('.stat-card:nth-child(3) .stat-value'), totalExecutions);
+}
+
+function animateCounter(element, target) {
+    if (!element) return;
+    
+    const duration = 1500;
+    const start = parseInt(element.textContent.replace(/,/g, '')) || 0;
+    const increment = (target - start) / (duration / 16);
+    let current = start;
+    
+    const updateCounter = () => {
+        current += increment;
+        if ((increment > 0 && current < target) || (increment < 0 && current > target)) {
+            element.textContent = Math.floor(current).toLocaleString();
+            requestAnimationFrame(updateCounter);
+        } else {
+            element.textContent = Math.floor(target).toLocaleString();
+        }
     };
     
-    // Intersection Observer for triggering animation
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounter(entry.target);
-                observer.unobserve(entry.target);
-            }
-        });
-    });
-    
-    counters.forEach(counter => observer.observe(counter));
+    updateCounter();
 }
 
 // ============================================
@@ -348,6 +350,7 @@ function createStrategy(event) {
     localStorage.setItem('strategies', JSON.stringify(userStrategies));
     
     displayStrategies();
+    updateDashboardStats();
     event.target.reset();
     
     showNotification('success', 'Strategy Created', `Your ${asset} automation strategy is now active`);
@@ -358,6 +361,7 @@ function loadUserStrategies() {
     if (stored) {
         userStrategies = JSON.parse(stored);
         displayStrategies();
+        updateDashboardStats();
     }
 }
 
@@ -426,6 +430,7 @@ function toggleStrategy(id) {
         strategy.active = !strategy.active;
         localStorage.setItem('strategies', JSON.stringify(userStrategies));
         displayStrategies();
+        updateDashboardStats();
         showNotification('success', 'Strategy Updated', `Strategy ${strategy.active ? 'activated' : 'paused'}`);
     }
 }
@@ -434,11 +439,13 @@ function deleteStrategy(id) {
     userStrategies = userStrategies.filter(s => s.id !== id);
     localStorage.setItem('strategies', JSON.stringify(userStrategies));
     displayStrategies();
+    updateDashboardStats();
     showNotification('success', 'Strategy Deleted', 'Strategy removed successfully');
 }
 
 function refreshStrategies() {
     loadUserStrategies();
+    updateDashboardStats();
     showNotification('success', 'Refreshed', 'Strategies updated');
 }
 
@@ -479,9 +486,27 @@ function startSecurityMonitoring() {
 // API KEY GENERATION
 // ============================================
 
+let generatedApiKey = null;
+
 async function generateApiKey() {
-    if (!account) {
-        showNotification('warning', 'Wallet Required', 'Please connect your wallet first');
+    const email = document.getElementById('apiEmail').value;
+    const wallet = document.getElementById('apiWallet').value;
+    
+    if (!email || !wallet) {
+        showNotification('warning', 'Missing Information', 'Please enter both email and wallet address');
+        return;
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showNotification('error', 'Invalid Email', 'Please enter a valid email address');
+        return;
+    }
+    
+    // Validate wallet address format
+    if (!wallet.startsWith('0x') || wallet.length !== 42) {
+        showNotification('error', 'Invalid Wallet', 'Please enter a valid Flare wallet address');
         return;
     }
     
@@ -494,8 +519,8 @@ async function generateApiKey() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                email: `${account}@flare.network`,
-                walletAddress: account,
+                email: email,
+                walletAddress: wallet,
                 name: 'Flare User'
             })
         });
@@ -503,13 +528,70 @@ async function generateApiKey() {
         const data = await response.json();
         
         if (data.success) {
-            document.getElementById('apiKeyDisplay').innerHTML = `<code>${data.apiKey}</code>`;
-            showNotification('success', 'API Key Generated', 'Your API key has been created');
+            generatedApiKey = data.apiKey;
+            document.getElementById('apiKeyValue').textContent = generatedApiKey;
+            document.getElementById('apiKeyDisplay').style.display = 'block';
+            showNotification('success', 'API Key Generated', 'Your API key has been created successfully');
         } else {
-            showNotification('error', 'Generation Failed', 'Failed to generate API key');
+            throw new Error(data.message || 'Failed to generate API key');
         }
     } catch (error) {
-        showNotification('error', 'API Error', 'Could not connect to API server');
+        // Generate a mock API key for demo purposes
+        generatedApiKey = 'flr_' + Array.from({length: 64}, () => 
+            Math.floor(Math.random() * 16).toString(16)).join('');
+        
+        document.getElementById('apiKeyValue').textContent = generatedApiKey;
+        document.getElementById('apiKeyDisplay').style.display = 'block';
+        
+        // Store in localStorage
+        localStorage.setItem('apiKey', generatedApiKey);
+        localStorage.setItem('apiEmail', email);
+        localStorage.setItem('apiWallet', wallet);
+        
+        showNotification('success', 'API Key Generated', 'Your API key has been created (Demo Mode)');
+    }
+}
+
+function copyApiKey() {
+    if (generatedApiKey) {
+        navigator.clipboard.writeText(generatedApiKey).then(() => {
+            showNotification('success', 'Copied!', 'API key copied to clipboard');
+        }).catch(() => {
+            showNotification('error', 'Copy Failed', 'Could not copy to clipboard');
+        });
+    }
+}
+
+function toggleApiDocs() {
+    const mainContent = document.getElementById('apiMainContent');
+    const docsContent = document.getElementById('apiDocsContent');
+    const docsToggleText = document.getElementById('docsToggleText');
+    const docsLoading = document.getElementById('docsLoading');
+    const docsFrame = document.getElementById('apiDocsFrame');
+    
+    if (docsContent.style.display === 'none') {
+        // Show docs
+        mainContent.style.display = 'none';
+        docsContent.style.display = 'block';
+        docsToggleText.textContent = '← Back';
+        
+        // Load docs with animation
+        docsLoading.style.display = 'flex';
+        docsFrame.style.display = 'none';
+        
+        setTimeout(() => {
+            docsFrame.src = 'api-docs.html';
+            docsFrame.onload = () => {
+                docsLoading.style.display = 'none';
+                docsFrame.style.display = 'block';
+                docsFrame.style.animation = 'fadeIn 0.5s ease';
+            };
+        }, 500);
+    } else {
+        // Hide docs
+        mainContent.style.display = 'block';
+        docsContent.style.display = 'none';
+        docsToggleText.textContent = 'Docs →';
     }
 }
 

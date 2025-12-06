@@ -289,25 +289,51 @@
                         <span class="title-icon">🔌</span>
                         API Integration
                     </h3>
-                    <a href="api-docs.html" class="btn-link" target="_blank">Docs →</a>
+                    <button class="btn-link" onclick="toggleApiDocs()">
+                        <span id="docsToggleText">Docs →</span>
+                    </button>
                 </div>
                 
-                <div class="api-content">
+                <div class="api-content" id="apiMainContent">
                     <p class="api-description">
                         Integrate Flare Autopilot into your applications with our RESTful API
                     </p>
 
                     <div class="api-key-section">
-                        <label class="form-label">Your API Key</label>
-                        <div class="api-key-display" id="apiKeyDisplay">
-                            <code>Click "Generate" to create your API key</code>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <div class="input-wrapper">
+                                <span class="input-prefix">📧</span>
+                                <input type="email" id="apiEmail" class="form-input" placeholder="your@email.com" required>
+                            </div>
                         </div>
-                        <button class="btn-secondary" onclick="generateApiKey()">
+
+                        <div class="form-group">
+                            <label class="form-label">Flare Wallet Address</label>
+                            <div class="input-wrapper">
+                                <span class="input-prefix">💼</span>
+                                <input type="text" id="apiWallet" class="form-input" placeholder="0x..." required>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" onclick="generateApiKey()" style="width: 100%; margin-top: 10px;">
+                            <span class="btn-icon">✨</span>
                             <span>Generate API Key</span>
+                            <div class="btn-shine"></div>
                         </button>
+
+                        <div class="api-key-display" id="apiKeyDisplay" style="display: none; margin-top: 20px;">
+                            <label class="form-label">Your API Key</label>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <code id="apiKeyValue" style="flex: 1; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; font-size: 0.9em; word-break: break-all;"></code>
+                                <button class="btn-secondary" onclick="copyApiKey()" style="white-space: nowrap;">
+                                    📋 Copy
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="api-endpoints">
+                    <div class="api-endpoints" style="margin-top: 25px;">
                         <div class="endpoint-item">
                             <span class="endpoint-method">GET</span>
                             <code>/api/strategies</code>
@@ -321,6 +347,15 @@
                             <code>/api/security/status</code>
                         </div>
                     </div>
+                </div>
+
+                <!-- API Documentation (Hidden by default) -->
+                <div class="api-docs-content" id="apiDocsContent" style="display: none;">
+                    <div class="docs-loading" id="docsLoading">
+                        <div class="loading-spinner"></div>
+                        <p>Loading documentation...</p>
+                    </div>
+                    <iframe id="apiDocsFrame" style="display: none; width: 100%; height: 600px; border: none; border-radius: 12px;"></iframe>
                 </div>
             </div>
         </section>
