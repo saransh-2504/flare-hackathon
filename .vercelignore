@@ -1,0 +1,16 @@
+node_modules
+.env
+.env.local
+cache
+artifacts
+coverage
+typechain-types
+*.log
+.DS_Store
+test
+bot
+.git
+.github
+*.md
+!README.md
+test-demo.bat

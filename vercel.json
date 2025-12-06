@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "name": "flare-autopilot",
+  "builds": [
+    {
+      "src": "api/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "frontend/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/server.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/frontend/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "regions": ["iad1"],
+  "functions": {
+    "api/server.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  }
+}

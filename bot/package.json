@@ -1,0 +1,16 @@
+{
+  "name": "flare-autopilot-bot",
+  "version": "1.0.0",
+  "description": "Monitoring bots for Flare Autopilot",
+  "main": "index.js",
+  "scripts": {
+    "price": "node price-monitor.js",
+    "fdc": "node fdc-monitor.js",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "ethers": "^6.9.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  }
+}
