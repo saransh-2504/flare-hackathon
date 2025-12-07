@@ -290,13 +290,7 @@ async function connectWallet() {
             return;
         }
 
-        const btn = document.getElementById('connectBtn');
-        btn.innerHTML = `
-            <span class="btn-icon">✅</span>
-            <span class="btn-text">${account.slice(0, 6)}...${account.slice(-4)}</span>
-            <div class="btn-glow"></div>
-        `;
-        btn.style.background = 'linear-gradient(135deg, #00F5A0, #00D9FF)';
+        updateConnectButton(true);
         
         showNotification('success', 'Wallet Connected', 'Successfully connected to Flare Coston2');
         
@@ -305,6 +299,97 @@ async function connectWallet() {
     } catch (error) {
         showNotification('error', 'Connection Failed', error.message);
     }
+}
+
+function updateConnectButton(connected) {
+    const btn = document.getElementById('connectBtn');
+    
+    if (connected && account) {
+        btn.innerHTML = `
+            <span class="btn-icon">✅</span>
+            <span class="btn-text">${account.slice(0, 6)}...${account.slice(-4)}</span>
+            <span class="btn-menu" onclick="toggleWalletMenu(event)">⋯</span>
+            <div class="btn-glow"></div>
+        `;
+        btn.style.background = 'linear-gradient(135deg, #00F5A0, #00D9FF)';
+        btn.onclick = null;
+        
+        // Remove any existing dropdown
+        const existingDropdown = document.querySelector('.wallet-dropdown');
+        if (existingDropdown) {
+            existingDropdown.remove();
+        }
+    } else {
+        btn.innerHTML = `
+            <span class="btn-icon">🔗</span>
+            <span class="btn-text">Connect Wallet</span>
+            <div class="btn-glow"></div>
+        `;
+        btn.style.background = 'linear-gradient(135deg, var(--primary), var(--primary-dark))';
+        btn.onclick = connectWallet;
+    }
+}
+
+function toggleWalletMenu(event) {
+    event.stopPropagation();
+    
+    // Remove existing dropdown if any
+    const existingDropdown = document.querySelector('.wallet-dropdown');
+    if (existingDropdown) {
+        existingDropdown.remove();
+        return;
+    }
+    
+    // Create dropdown menu
+    const dropdown = document.createElement('div');
+    dropdown.className = 'wallet-dropdown';
+    dropdown.innerHTML = `
+        <button class="dropdown-item" onclick="disconnectWallet(event)">
+            <span class="dropdown-icon">🚪</span>
+            <span>Logout</span>
+        </button>
+    `;
+    
+    // Position dropdown below the button
+    const btn = document.getElementById('connectBtn');
+    const rect = btn.getBoundingClientRect();
+    dropdown.style.top = (rect.bottom + 10) + 'px';
+    dropdown.style.right = (window.innerWidth - rect.right) + 'px';
+    
+    document.body.appendChild(dropdown);
+    
+    // Animate in
+    setTimeout(() => dropdown.classList.add('show'), 10);
+    
+    // Close on click outside
+    setTimeout(() => {
+        document.addEventListener('click', closeWalletMenu);
+    }, 100);
+}
+
+function closeWalletMenu() {
+    const dropdown = document.querySelector('.wallet-dropdown');
+    if (dropdown) {
+        dropdown.classList.remove('show');
+        setTimeout(() => dropdown.remove(), 300);
+    }
+    document.removeEventListener('click', closeWalletMenu);
+}
+
+function disconnectWallet(event) {
+    event.stopPropagation();
+    
+    // Close dropdown
+    closeWalletMenu();
+    
+    account = null;
+    userStrategies = [];
+    
+    updateConnectButton(false);
+    updateDashboardStats();
+    displayStrategies();
+    
+    showNotification('success', 'Wallet Disconnected', 'Successfully disconnected from wallet');
 }
 
 async function switchToCoston2() {
