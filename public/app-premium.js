@@ -607,7 +607,6 @@ function toggleApiDocs() {
                     <span>Back to Dashboard</span>
                 </button>
                 <div class="docs-title">
-                    <span class="docs-icon">📚</span>
                     <h2>API Documentation</h2>
                 </div>
             </div>
