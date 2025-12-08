@@ -9,6 +9,14 @@ let mouseX = 0;
 let mouseY = 0;
 let cursorDot, cursorOutline;
 
+// Contract instances
+let automationHubContract;
+let ftsoPriceTriggerContract;
+let ftsoRegistryContract;
+
+// Blockchain mode flag
+let useBlockchain = false;
+
 // ============================================
 // INITIALIZATION
 // ============================================
@@ -290,6 +298,9 @@ async function connectWallet() {
             return;
         }
 
+        // Initialize Web3 and contracts
+        await initializeContracts();
+
         updateConnectButton(true);
         
         showNotification('success', 'Wallet Connected', 'Successfully connected to Flare Coston2');
@@ -298,6 +309,51 @@ async function connectWallet() {
         
     } catch (error) {
         showNotification('error', 'Connection Failed', error.message);
+    }
+}
+
+async function initializeContracts() {
+    try {
+        // Initialize ethers.js provider
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        
+        const config = window.FLARE_CONFIG;
+        
+        // Check if contracts are deployed
+        const hubAddress = config.CONTRACTS.AUTOMATION_HUB;
+        if (!hubAddress || hubAddress === '0x...') {
+            console.log('⚠️ Contracts not deployed - using localStorage mode');
+            useBlockchain = false;
+            return;
+        }
+        
+        // Initialize contract instances
+        automationHubContract = new ethers.Contract(
+            hubAddress,
+            config.ABI.AUTOMATION_HUB,
+            signer
+        );
+        
+        ftsoPriceTriggerContract = new ethers.Contract(
+            config.CONTRACTS.FTSO_PRICE_TRIGGER,
+            config.ABI.FTSO_PRICE_TRIGGER,
+            signer
+        );
+        
+        ftsoRegistryContract = new ethers.Contract(
+            config.FTSO_REGISTRY,
+            config.ABI.FTSO_REGISTRY,
+            provider
+        );
+        
+        useBlockchain = true;
+        console.log('✅ Contracts initialized - using blockchain mode');
+        
+    } catch (error) {
+        console.error('Error initializing contracts:', error);
+        useBlockchain = false;
+        showNotification('warning', 'Blockchain Mode Disabled', 'Using local storage mode');
     }
 }
 
@@ -428,7 +484,7 @@ async function switchToCoston2() {
 // STRATEGY MANAGEMENT
 // ============================================
 
-function createStrategy(event) {
+async function createStrategy(event) {
     event.preventDefault();
     
     if (!account) {
@@ -444,36 +500,173 @@ function createStrategy(event) {
     const amount = document.getElementById('amount').value;
     const protected = document.getElementById('protected').checked;
 
-    const strategy = {
-        id: Date.now(),
-        triggerType,
-        asset,
-        condition,
-        targetPrice,
-        action,
-        amount,
-        protected,
-        active: true,
-        executions: 0,
-        createdAt: new Date().toISOString()
-    };
+    if (useBlockchain) {
+        // Create strategy on blockchain
+        await createStrategyOnChain(triggerType, asset, condition, targetPrice, action, amount, protected);
+    } else {
+        // Create strategy in localStorage (demo mode)
+        const strategy = {
+            id: Date.now(),
+            triggerType,
+            asset,
+            condition,
+            targetPrice,
+            action,
+            amount,
+            protected,
+            active: true,
+            executions: 0,
+            createdAt: new Date().toISOString()
+        };
 
-    userStrategies.push(strategy);
-    localStorage.setItem('strategies', JSON.stringify(userStrategies));
-    
-    displayStrategies();
-    updateDashboardStats();
-    event.target.reset();
-    
-    showNotification('success', 'Strategy Created', `Your ${asset} automation strategy is now active`);
-}
-
-function loadUserStrategies() {
-    const stored = localStorage.getItem('strategies');
-    if (stored) {
-        userStrategies = JSON.parse(stored);
+        userStrategies.push(strategy);
+        localStorage.setItem('strategies', JSON.stringify(userStrategies));
+        
         displayStrategies();
         updateDashboardStats();
+        event.target.reset();
+        
+        showNotification('success', 'Strategy Created', `Your ${asset} automation strategy is now active`);
+    }
+}
+
+async function createStrategyOnChain(triggerType, asset, condition, targetPrice, action, amount, protected) {
+    try {
+        showNotification('info', 'Creating Strategy', 'Please confirm the transaction in MetaMask...');
+        
+        // Map trigger type to enum
+        const triggerTypeEnum = triggerType === 'price' ? 0 : triggerType === 'event' ? 1 : 2;
+        
+        // Map action type to enum
+        const actionTypeEnum = action === 'mint' ? 0 : action === 'redeem' ? 1 : action === 'swap' ? 2 : 3;
+        
+        // Encode trigger data (for price trigger)
+        const triggerData = ethers.AbiCoder.defaultAbiCoder().encode(
+            ['string', 'uint256', 'bool'],
+            [asset, ethers.parseUnits(targetPrice, 5), condition === 'above']
+        );
+        
+        // Encode action data
+        const actionData = ethers.AbiCoder.defaultAbiCoder().encode(
+            ['uint256'],
+            [ethers.parseEther(amount)]
+        );
+        
+        // Create strategy on AutomationHub
+        const tx = await automationHubContract.createStrategy(
+            triggerTypeEnum,
+            actionTypeEnum,
+            triggerData,
+            actionData,
+            100 // maxExecutions
+        );
+        
+        showNotification('info', 'Transaction Sent', 'Waiting for confirmation...');
+        
+        const receipt = await tx.wait();
+        
+        // Get strategy ID from event
+        const event = receipt.logs.find(log => {
+            try {
+                const parsed = automationHubContract.interface.parseLog(log);
+                return parsed.name === 'StrategyCreated';
+            } catch {
+                return false;
+            }
+        });
+        
+        let strategyId;
+        if (event) {
+            const parsed = automationHubContract.interface.parseLog(event);
+            strategyId = parsed.args.strategyId.toString();
+        }
+        
+        // If price trigger, create price trigger
+        if (triggerTypeEnum === 0 && strategyId) {
+            const priceTx = await ftsoPriceTriggerContract.createPriceTrigger(
+                strategyId,
+                asset,
+                ethers.parseUnits(targetPrice, 5),
+                condition === 'above'
+            );
+            await priceTx.wait();
+        }
+        
+        showNotification('success', 'Strategy Created On-Chain', `Strategy ID: ${strategyId}. Bot will monitor and execute automatically.`);
+        
+        // Reload strategies from blockchain
+        await loadUserStrategies();
+        
+        // Reset form
+        document.querySelector('.strategy-form').reset();
+        
+    } catch (error) {
+        console.error('Error creating strategy:', error);
+        showNotification('error', 'Transaction Failed', error.message || 'Failed to create strategy on blockchain');
+    }
+}
+
+async function loadUserStrategies() {
+    if (useBlockchain && account) {
+        // Load strategies from blockchain
+        await loadStrategiesFromChain();
+    } else {
+        // Load from localStorage
+        const stored = localStorage.getItem('strategies');
+        if (stored) {
+            userStrategies = JSON.parse(stored);
+            displayStrategies();
+            updateDashboardStats();
+        }
+    }
+}
+
+async function loadStrategiesFromChain() {
+    try {
+        // Get user's strategy IDs
+        const strategyIds = await automationHubContract.getUserStrategies(account);
+        
+        userStrategies = [];
+        
+        // Load each strategy
+        for (const id of strategyIds) {
+            const strategy = await automationHubContract.strategies(id);
+            
+            // Get price trigger details if it's a price trigger
+            let triggerDetails = null;
+            if (strategy.triggerType <= 2) {
+                try {
+                    triggerDetails = await ftsoPriceTriggerContract.priceTriggers(id);
+                } catch (e) {
+                    console.log('No price trigger for strategy', id.toString());
+                }
+            }
+            
+            // Format strategy for display
+            const formattedStrategy = {
+                id: id.toString(),
+                triggerType: strategy.triggerType === 0 ? 'price' : strategy.triggerType === 1 ? 'event' : 'time',
+                asset: triggerDetails ? triggerDetails.symbol : 'Unknown',
+                condition: triggerDetails ? (triggerDetails.isAbove ? 'above' : 'below') : 'unknown',
+                targetPrice: triggerDetails ? ethers.formatUnits(triggerDetails.targetPrice, 5) : '0',
+                action: strategy.actionType === 0 ? 'mint' : strategy.actionType === 1 ? 'redeem' : strategy.actionType === 2 ? 'swap' : 'transfer',
+                amount: '0', // Would need to decode actionData
+                protected: true,
+                active: strategy.active,
+                executions: Number(strategy.executionCount),
+                createdAt: new Date().toISOString(),
+                onChain: true
+            };
+            
+            userStrategies.push(formattedStrategy);
+        }
+        
+        displayStrategies();
+        updateDashboardStats();
+        
+    } catch (error) {
+        console.error('Error loading strategies from chain:', error);
+        showNotification('warning', 'Load Failed', 'Could not load strategies from blockchain');
     }
 }
 
