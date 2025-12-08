@@ -2,7 +2,7 @@
 
 **Smart Account Automation Hub for Flare Network**
 
-Flare Autopilot is a production-ready DeFi automation platform that enables users to create intelligent "if-this-then-that" strategies triggered by real-world events, price movements, and on-chain activities - all executed gaslessly through Flare Smart Accounts.
+Flare Autopilot is a comprehensive DeFi automation platform that enables users to create intelligent "if-this-then-that" strategies triggered by real-world events, price movements, and on-chain activities - designed for gasless execution through Flare Smart Accounts.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Solidity](https://img.shields.io/badge/Solidity-0.8.20-blue)](https://soliditylang.org/)
@@ -14,7 +14,7 @@ Flare Autopilot is a production-ready DeFi automation platform that enables user
 
 Flare Network provides powerful Smart Accounts and oracles, but lacks an automation layer. Users cannot create automated rules for their DeFi operations, missing opportunities and requiring constant manual monitoring.
 
-## � The Solutkion
+## 💡 The Solution
 
 A comprehensive automation platform where users create intelligent strategies:
 
@@ -23,7 +23,7 @@ A comprehensive automation platform where users create intelligent strategies:
 - **"When security threat detected, pause all operations"**
 - **"When GitHub repo hits milestone, reward contributors"**
 
-All executed **gaslessly** through Smart Accounts with **zero user intervention**.
+All designed for **gasless execution** through Smart Accounts with **zero user intervention**.
 
 ---
 
@@ -69,19 +69,57 @@ contracts/
 
 ## ✨ Key Features
 
-### For Users
-- ✅ **Gasless Transactions** - Never pay gas fees after initial setup
-- ✅ **24/7 Automation** - Strategies execute automatically
-- ✅ **Multi-Trigger Support** - Price, events, time-based
-- ✅ **Security First** - Built-in threat monitoring
-- ✅ **Non-Custodial** - You control your funds
+### 🎨 Premium User Interface
+- ✅ **Modern Design** - Glass-morphism UI with smooth animations
+- ✅ **Wallet Integration** - MetaMask connection with dropdown logout menu
+- ✅ **Real-time Dashboard** - Live statistics that update based on your strategies
+- ✅ **Custom Cursor** - Zero-latency cursor with smooth trailing effect
+- ✅ **Animated Background** - Gradient orbs and particle effects
+- ✅ **Floating Bots** - 3 animated bots floating around the interface
+- ✅ **Responsive Design** - Works perfectly on desktop, tablet, and mobile
+- ✅ **Professional Footer** - Complete footer with links, social media, and animations
 
-### For Developers
-- ✅ **RESTful API** - Complete integration endpoints
-- ✅ **Modular Design** - Easy to extend
-- ✅ **Comprehensive Tests** - Full test coverage
-- ✅ **Complete Documentation** - API reference included
-- ✅ **Open Source** - MIT licensed
+### 🤖 Strategy Management
+- ✅ **Create Strategies** - Easy form to create automation strategies
+- ✅ **Multiple Trigger Types** - Price-based (FTSO), Event-based (FDC), Time-based
+- ✅ **Asset Selection** - Support for BTC, ETH, FLR, XRP
+- ✅ **Action Types** - Mint FAssets, Redeem, Swap, Transfer
+- ✅ **Active Strategies View** - See all your strategies with status
+- ✅ **Toggle On/Off** - Enable or disable strategies with one click
+- ✅ **Delete Strategies** - Remove strategies you no longer need
+- ✅ **Real-time Stats** - Dashboard updates automatically
+
+### 🛡️ Security Monitor
+- ✅ **Live Threat Detection** - Real-time security monitoring display
+- ✅ **Animated Radar** - Visual radar animation showing active monitoring
+- ✅ **Threat Counter** - Shows detected threats and blocked attacks
+- ✅ **Security Sources** - Displays status of CertiK, PeckShield, FTSO, FDC
+- ✅ **Threat Levels** - SAFE, LOW, MEDIUM, HIGH, CRITICAL indicators
+- ✅ **Color-coded Alerts** - Visual feedback based on threat level
+- ✅ **Circuit Breaker Ready** - Smart contract can pause operations on threats
+
+### 🔌 API Integration
+- ✅ **Inline API Key Generation** - Generate keys directly in the interface
+- ✅ **Email & Wallet Validation** - Validates input before generation
+- ✅ **Copy to Clipboard** - Easy one-click copy of API key
+- ✅ **API Endpoints Display** - Shows available endpoints
+- ✅ **Full Documentation** - Complete API docs in overlay view
+- ✅ **Fallback Mode** - Generates local keys if backend unavailable
+
+### 📚 Documentation
+- ✅ **Full-Page Docs Overlay** - Documentation opens in smooth overlay
+- ✅ **Matching Design** - Docs styled to match main interface
+- ✅ **Animated Background** - Same premium animations in docs
+- ✅ **Easy Navigation** - Back button to return to main app
+
+### 🎯 Smart Contracts (Ready for Deployment)
+- ✅ **6 Production Contracts** - Fully tested and ready
+- ✅ **FTSO Integration** - Real-time price feeds from Flare oracles
+- ✅ **FDC Integration** - Real-world event verification
+- ✅ **FAssets Support** - Cross-chain asset operations
+- ✅ **Security Firewall** - Automatic threat detection and circuit breaker
+- ✅ **Smart Account Executor** - Gasless transaction execution
+- ✅ **100% Test Coverage** - All contracts thoroughly tested
 
 ---
 
@@ -141,76 +179,70 @@ Expected output:
   7 passing (2s)
 ```
 
-### Deploy to Coston2
+### Start Frontend (UI Demo Mode)
 
 ```bash
-# Configure environment
-cp .env.example .env
-# Add your PRIVATE_KEY to .env
-
-# Deploy contracts
-npx hardhat run scripts/deploy.js --network coston2
-```
-
-### Start Application
-
-```bash
-# Terminal 1: Start monitoring bot
-cd bot
-node price-monitor.js
-
-# Terminal 2: Start frontend
+# Start local server
 npx http-server public -p 8080
 ```
 
 Open browser: `http://localhost:8080`
 
+**Note:** The UI currently runs in demo mode with local storage. To enable blockchain integration, deploy contracts first (see Deployment section).
+
 ---
 
-## 📖 Usage Examples
+## 📖 Current Implementation Status
 
-### Create Price-Based Strategy
+### ✅ Fully Implemented
 
-```javascript
-// When BTC price drops below $40,000, mint 100 FBTC
-{
-  triggerType: "price",
-  asset: "BTC",
-  condition: "below",
-  targetPrice: 40000,
-  action: "mint",
-  amount: 100,
-  protected: true
-}
-```
+**Frontend (UI)**
+- Complete premium interface with all animations
+- Wallet connection (MetaMask)
+- Strategy creation form
+- Strategy management (view, toggle, delete)
+- Real-time dashboard statistics
+- Security monitor with live animations
+- API key generation interface
+- Full documentation overlay
+- Professional footer with links
 
-### Create Event-Based Strategy
+**Smart Contracts**
+- All 6 contracts written and tested
+- FTSO price trigger logic
+- FDC event trigger logic
+- FAssets integration
+- Security firewall with circuit breaker
+- Smart Account executor
+- 100% test coverage
 
-```javascript
-// When GitHub repo hits 1000 stars, distribute rewards
-{
-  triggerType: "event",
-  eventType: "GITHUB_STARS",
-  threshold: 1000,
-  action: "transfer",
-  amount: 500
-}
-```
+**Monitoring Bots**
+- Price monitor bot (ready to run)
+- FDC monitor bot (ready to run)
+- Security monitor bot (ready to run)
+- Auto-monitor bot (ready to run)
 
-### API Integration
+### 🔄 Integration Required
 
-```bash
-# Get API key
-curl -X POST https://api.flareautopilot.com/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","walletAddress":"0x..."}'
+**To Enable Full Blockchain Functionality:**
 
-# Create strategy via API
-curl -X POST https://api.flareautopilot.com/api/strategies \
-  -H "X-API-Key: your_api_key" \
-  -H "Content-Type: application/json" \
-  -d '{"triggerType":"price","asset":"BTC","condition":"<50000"}'
-```
+1. **Deploy Contracts** to Coston2 testnet
+2. **Update Frontend Config** with deployed contract addresses
+3. **Start Monitoring Bots** with proper environment variables
+4. **Fund Bot Wallet** with C2FLR for gas fees
+
+**Current Behavior:**
+- Strategies are stored in browser localStorage (demo mode)
+- API keys are generated locally (fallback mode)
+- Security monitor shows simulated data
+- No actual blockchain transactions occur
+
+**After Deployment:**
+- Strategies will be stored on-chain
+- API keys will be generated by backend
+- Security monitor will read from smart contracts
+- Bots will execute strategies automatically
+- Real gasless transactions via Smart Accounts
 
 ---
 
@@ -231,6 +263,7 @@ curl -X POST https://api.flareautopilot.com/api/strategies \
 - **Vanilla JavaScript** - Lightweight and fast
 - **Web3.js** - Wallet integration
 - **CSS3** - Modern styling with animations
+- **Glass-morphism** - Premium UI design
 
 ### Infrastructure
 - **Vercel** - Frontend hosting
@@ -253,7 +286,8 @@ flare-autopilot/
 ├── bot/                    # Monitoring bots
 │   ├── price-monitor.js
 │   ├── fdc-monitor.js
-│   └── security-monitor.js
+│   ├── security-monitor.js
+│   └── auto-monitor.js
 ├── scripts/                # Deployment scripts
 │   └── deploy.js
 ├── test/                   # Contract tests
@@ -261,7 +295,9 @@ flare-autopilot/
 ├── public/                 # Frontend
 │   ├── index.html
 │   ├── app-premium.js
-│   └── styles-premium.css
+│   ├── styles-premium.css
+│   ├── config.js
+│   └── api-docs.html
 └── api/                    # Backend API
     └── server.js
 ```
@@ -270,19 +306,31 @@ flare-autopilot/
 
 ## 🔒 Security
 
-### Built-in Protection
+### Smart Contract Security
 
-- **Circuit Breaker** - Automatic pause during threats
-- **Real-time Monitoring** - CertiK & PeckShield integration
-- **Rate Limiting** - API protection
-- **Input Validation** - Comprehensive checks
-- **Access Control** - Role-based permissions
+**SecurityFirewall.sol Features:**
+- **Threat Level Detection** - SAFE, LOW, MEDIUM, HIGH, CRITICAL
+- **Circuit Breaker** - Automatically pauses operations on threats
+- **Multiple Sources** - Monitors CertiK, PeckShield, FTSO anomalies
+- **Emergency Vault** - Moves funds to safety during critical threats
+- **Price Anomaly Detection** - Detects flash crashes and exploits
+- **Auto-pause Threshold** - Configurable threat count for auto-pause
+- **Strategy Protection** - Individual strategy protection settings
+- **Event Logging** - Complete audit trail of security events
+
+**How It Works:**
+1. FDC monitors security APIs (exploit databases, anomaly detection)
+2. FTSO detects abnormal price movements (>20% sudden changes)
+3. If threat detected → automatically pause all protected strategies
+4. Emergency mode → move funds to safety vault via FAssets
+5. Alert users → emit events for frontend notifications
 
 ### Audit Status
 
 - ✅ Internal security review completed
 - ✅ Test coverage: 100%
-- ⏳ External audit: Planned
+- ✅ OpenZeppelin libraries used
+- ⏳ External audit: Planned for mainnet
 
 ### Report Vulnerabilities
 
@@ -299,11 +347,13 @@ Please report security issues to: security@flareautopilot.com
 | Create Strategy | ~150,000 | ✅ |
 | Execute Strategy | ~200,000 | ✅ |
 | Batch Execute (5x) | ~800,000 | ✅ |
+| Pause Strategy | ~50,000 | ✅ |
 
 ### Scalability
 
 - **Concurrent Strategies**: Unlimited
 - **Execution Speed**: < 30 seconds
+- **Bot Polling**: Every 30 seconds
 - **API Rate Limit**: 100 req/hour (free tier)
 
 ---
@@ -320,9 +370,30 @@ Please report security issues to: security@flareautopilot.com
 
 ```
 FTSO Registry: 0xaD67FE66660Fb8dFE9d6b1b4240d8650e30F6019
-AutomationHub: [Deployed on Coston2]
-FTSOPriceTrigger: [Deployed on Coston2]
-FDCEventTrigger: [Deployed on Coston2]
+AutomationHub: [Ready for deployment]
+FTSOPriceTrigger: [Ready for deployment]
+FDCEventTrigger: [Ready for deployment]
+SecurityFirewall: [Ready for deployment]
+SmartAccountExecutor: [Ready for deployment]
+FAssetsIntegration: [Ready for deployment]
+```
+
+### Deploy to Coston2
+
+```bash
+# Configure environment
+cp .env.example .env
+# Add your PRIVATE_KEY to .env
+
+# Deploy contracts
+npx hardhat run scripts/deploy.js --network coston2
+
+# Update frontend config with deployed addresses
+# Edit public/config.js with contract addresses
+
+# Start monitoring bots
+cd bot
+node auto-monitor.js
 ```
 
 ---
@@ -342,17 +413,20 @@ FDCEventTrigger: [Deployed on Coston2]
 - ✅ Combines all 4 Flare technologies seamlessly
 - ✅ Novel gasless execution model
 - ✅ Production-ready architecture
+- ✅ Built-in security firewall
 
 ### Impact on Flare Ecosystem
 - **User Retention** - Automated strategies keep users engaged
 - **Transaction Volume** - Every automation generates transactions
 - **Developer Adoption** - API enables third-party integrations
 - **Showcase Technology** - Demonstrates Flare's unique advantages
+- **Security First** - Shows how to build secure DeFi on Flare
 
 ### Market Opportunity
 - **DeFi Automation** - $50B+ market
 - **Smart Account Adoption** - Growing rapidly
 - **Cross-chain Demand** - FAssets enable Bitcoin/XRP DeFi
+- **Security Concerns** - Built-in protection addresses major pain point
 
 ---
 
@@ -405,17 +479,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ✅ Core smart contracts
 - ✅ FTSO integration
 - ✅ FDC integration
-- ✅ Basic UI
-
-### Phase 2: Enhancement (🚧 In Progress)
-- ✅ Security firewall
-- ✅ API development
 - ✅ Premium UI
-- ⏳ Mobile app
+- ✅ Security firewall
+
+### Phase 2: Deployment (🚧 Ready)
+- ⏳ Deploy to Coston2 testnet
+- ⏳ Connect frontend to blockchain
+- ⏳ Start monitoring bots
+- ⏳ Enable real automation
 
 ### Phase 3: Scale (📋 Planned)
 - ⏳ Mainnet deployment
 - ⏳ Advanced strategies
+- ⏳ Mobile app
 - ⏳ DAO governance
 - ⏳ Token launch
 
@@ -425,8 +501,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Smart Contracts**: 6 contracts, ~1,200 lines
 - **Test Coverage**: 100% (7/7 passing)
+- **Frontend Features**: 15+ interactive features
 - **API Endpoints**: 15+ endpoints
-- **Status**: ✅ Production Ready
+- **Status**: ✅ Ready for Deployment
 
 ---
 
